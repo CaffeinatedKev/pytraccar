@@ -8,12 +8,12 @@ from pytraccar.exceptions import (
 import pytraccar.api as api
 import pytest
 
-username, correct_password = 'admin', 'admin'
+username, correct_password = 'alf@sitesense.no', '7BTy4679'
 wrong_password = 'WrongPassword'
-user_token = '12345678901234567890ABCDEFGHIJKL'
-admin_token = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ012345'
+user_token = '0fiHy1qGJuyNPECfY4TeRuPeG1on4U2A'
+admin_token = '0fiHy1qGJuyNPECfY4TeRuPeG1on4U2A'
 invalid_token = 'ThisIsNotAValidToken'
-test_url = 'http://127.0.0.1:8082'
+test_url = 'https://gps01.sitesense.no'
 
 
 @pytest.fixture(scope='module')
