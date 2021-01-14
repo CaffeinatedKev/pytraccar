@@ -31,7 +31,8 @@ class TraccarAPI:
             'session': base_url + '/api/session',
             'geofences': base_url + '/api/geofences',
             'notifications': base_url + '/api/notifications',
-            'reports_events': base_url + '/api/reports/events',
+            'reports/events': base_url + '/api/reports/events',
+            'reports/trips': base_url + '/api/reports/trips',
         }
         self._session = requests.Session()
 
@@ -146,11 +147,8 @@ class TraccarAPI:
         """
         path = self._urls['devices']
 
-        if not query:
-            req = self._session.get(url=path)
-        else:
-            data = {query: params}
-            req = self._session.get(url=path, params=data)
+        data = {query: params}
+        req = self._session.get(url=path, params=data)
 
         if req.status_code == 200:
             return req.json()
@@ -246,138 +244,6 @@ class TraccarAPI:
         if req.status_code != 204:
             raise TraccarApiException(info=req.text)
 
-    """
-        ----------------------
-        /api/geofences 
-        ----------------------
-        """
-
-    def get_all_geofences(self):
-        """Path: /geofences
-        Can only be used by admins or managers to fetch all entities.
-
-        Args:
-
-        Returns:
-          json: All geofences
-
-        """
-        path = self._urls['geofences']
-        data = {'all': True}
-        req = self._session.get(url=path, params=data)
-
-        if req.status_code == 200:
-            return req.json()
-        if req.status_code == 400:
-            raise UserPermissionException
-        else:
-            raise TraccarApiException(info=req.text)
-
-    def get_geofences(self, query=None, params=None):
-        """
-        Path: /geofences
-        Fetch a list of devices.
-        Without any params, returns a list of the user's devices.
-
-        Args:
-          query: Fetch by: userId, deviceId, groupId, id (Default value = None)
-          params: identifier or identifiers list.
-            Examples: [5, 10], 'geoFenceId' (Default value = None)
-
-        Returns:
-          json: Geofence list
-
-        Raises:
-          ObjectNotFoundException:
-
-        """
-        path = self._urls['geofences']
-
-        if not query:
-            req = self._session.get(url=path)
-        else:
-            data = {query: params}
-            req = self._session.get(url=path, params=data)
-
-        if req.status_code == 200:
-            return req.json()
-        elif req.status_code == 400:
-            raise ObjectNotFoundException(obj=params, obj_type='Geofence')
-        else:
-            raise TraccarApiException(info=req.text)
-
-    def create_geofence(self, name, area, description='', calendarId=None, attributes=None):
-        """Path: /geofences
-        Create a geofence. Only requires name and unique ID.
-        Other params are optional.
-
-        https://www.traccar.org/api-reference/#/definitions/Geofence
-
-        Args:
-          name: Geofence name.
-          description: Description
-          area: The Geofence area in WKT representation
-
-        Returns:
-          json: Created geofence.
-
-        Raises:
-          BadRequestException: If Geofence exists in database.
-
-        """
-
-        path = self._urls['geofences']
-
-        data = {
-            "id": -1,  # id auto-assignment
-            "name": name,
-            "description": description,
-            "area": str(area),
-        }
-
-        req = self._session.post(url=path, json=data)
-
-        if req.status_code == 200:
-            return req.json()
-        elif req.status_code == 400:
-            raise BadRequestException(message=req.text)
-        else:
-            raise TraccarApiException(info=req.text)
-
-    def update_geofence(self, geofence_id, name=None, area=None, description=None,
-                      calendarId=None, attributes=None):
-
-        # Get current geofence values
-        req = self.get_geofences(query='id', params=geofence_id)
-        geofence_info = req[0]
-
-        update = {
-            'name': name,
-            'area': area,
-            'description': description,
-            'calendarId': calendarId,
-            'attributes': attributes,
-        }
-
-        # Replaces all updated values in geofence_info
-        data = {key: value if update.get(key) is None else update[key] for key, value in geofence_info.items()}
-        headers = {'Content-Type': 'application/json'}
-
-        req = self._session.put('{}/{}'.format(self._urls['geofences'], geofence_id),
-                                data=json.dumps(data), headers=headers)
-
-        if req.status_code == 200:
-            return req.json()
-        elif req.status_code == 400:
-            raise BadRequestException(message=req.text)
-        else:
-            raise TraccarApiException(info=req.text)
-
-    def delete_geofence(self, geofence_id):
-        req = self._session.delete('{}/{}'.format(self._urls['geofences'], geofence_id))
-
-        if req.status_code != 204:
-            raise TraccarApiException(info=req.text)
 
     """
     ----------------------
@@ -405,3 +271,15 @@ class TraccarAPI:
         else:
             raise TraccarApiException(info=req.text)
 
+    def get_trips(self, q1=None, p1=None, q2=None, p2=None, q3=None, p3=None):
+
+        path = self._urls['reports/trips']
+
+        data = {q1: p1, q2: p2, q3: p3}
+        print(data)
+        req = self._session.get(url=path, params=data)
+
+        if req.status_code == 200:
+            return req.json()
+        else:
+            raise TraccarApiException(info=req.text)
