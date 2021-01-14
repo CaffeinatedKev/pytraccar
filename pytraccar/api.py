@@ -404,3 +404,4 @@ class TraccarAPI:
             raise UserPermissionException
         else:
             raise TraccarApiException(info=req.text)
+
